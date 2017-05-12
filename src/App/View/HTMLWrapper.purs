@@ -12,7 +12,7 @@ import Text.Smolder.HTML (body, div, head, html, link, meta, script, title)
 import Text.Smolder.HTML.Attributes (charset, content, href, id, name, rel, src, type')
 import Text.Smolder.Markup (text, (!))
 
-htmlWrapper :: ∀ ev. String -> String -> HTML ev
+htmlWrapper :: forall ev. String -> String -> HTML ev
 htmlWrapper app_html state_json =
   html do
     head do
