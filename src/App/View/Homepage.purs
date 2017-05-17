@@ -15,7 +15,7 @@ import Text.Smolder.Markup (text, (!), (#!))
 view :: State -> HTML Event
 view (State s) =
   div do
-    h1 $ text "Pux"
+    h1 $ text "Test"
     a ! className "github" ! href "#" #! onClick (const Increment) $ text "Increment"
     span $ text (show s.count)
     a ! className "github" ! href "#" #! onClick (const Decrement) $ text "Decrement"
