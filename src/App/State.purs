@@ -20,6 +20,8 @@ newtype State = State
   , loaded :: Boolean
   , count :: Int
   , todos :: Todos
+  , fetching :: Boolean
+  , error :: String
   }
 
 derive instance genericState :: Generic State _
@@ -28,7 +30,13 @@ derive instance newtypeState :: Newtype State _
 instance showState :: Show State where show = genericShow
 
 -- | Todos
-data Todo = Todo { id :: Int, title :: String }
+data Todo = Todo 
+  { id :: Int
+  , title :: String
+  , completed :: Boolean 
+  , text :: String
+  }
+  
 type Todos = Array Todo
 
 instance decodeJsonTodo :: DecodeJson Todo where
@@ -36,12 +44,15 @@ instance decodeJsonTodo :: DecodeJson Todo where
         obj <- decodeJson json
         id <- obj .? "id"
         title <- obj .? "title"
-        pure $ Todo { id, title }
+        completed <- obj .? "completed"
+        pure $ Todo { id, title, completed, text: "" }
 
 instance encodeJsonTodo :: EncodeJson Todo where
   encodeJson (Todo todo) = 
     "id" := todo.id
     ~> "title" := todo.title
+    ~> "completed" := todo.completed
+    ~> "text" := todo.text
     ~> jsonEmptyObject
     
 
@@ -64,4 +75,6 @@ init url = State
   , loaded: false
   , count: 0
   , todos: []
+  , fetching: false
+  , error: ""
   }

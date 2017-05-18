@@ -5,16 +5,17 @@ import App.Routes (Route)
 import App.State (State(..), Todos)
 import Control.Monad.Aff (attempt)
 import Control.Monad.Aff.Console (CONSOLE, log)
+import Data.Argonaut (decodeJson)
 import Data.Either (Either(..), either)
 import Data.Maybe (Maybe(..))
 import Network.HTTP.Affjax (AJAX, get)
 import Pux (EffModel, noEffects, onlyEffects)
-import Data.Argonaut (decodeJson)
 
 data Event 
     = PageView Route
     | Increment
     | Decrement
+    | ReceiveTodos (Either String Todos)
 
 type AppEffects fx = (ajax :: AJAX, console :: CONSOLE | fx)
 
@@ -28,8 +29,7 @@ foldp Increment (State st) = onlyEffects
         let decode r = decodeJson r.response :: Either String Todos
         let todos = either (Left <<< show) decode res
         log (show todos)
-        pure Nothing
-        -- pure (Just $ Todos todos)
+        pure (Just $ ReceiveTodos todos)
     ]
 
 foldp Decrement (State st) = 
@@ -43,4 +43,7 @@ foldp Decrement (State st) =
                 pure Nothing 
          ]
 
-
+foldp (ReceiveTodos res) (State st) = noEffects $
+    case res of
+        Right todos -> State st { todos = todos, error = "" }
+        Left err -> State st { error = "Error fetching " <> (show err) }
