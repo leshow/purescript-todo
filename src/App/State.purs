@@ -67,6 +67,7 @@ instance decodeTodo :: Decode Todo where
 
 instance encodeTodo :: Encode Todo where
   encode = genericEncode defaultOptions { unwrapSingleConstructors = true }
+
 -- | Initial State
 init :: String -> State
 init url = State

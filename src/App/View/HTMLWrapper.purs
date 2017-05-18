@@ -20,6 +20,7 @@ htmlWrapper app_html state_json =
       meta ! name "viewport" ! content "width=device-width, initial-scale=1"
       title $ text config.title
       link ! rel "icon" ! type' "image/x-icon" ! href "/favicon.ico"
+      link ! rel "stylesheet" ! href "/index.css"
     body do
       div ! key "app" ! id "app" ! dangerouslySetInnerHTML app_html $ mempty
       script ! key "initial_state" ! type' "text/javascript" ! dangerouslySetInnerHTML state_json $ mempty

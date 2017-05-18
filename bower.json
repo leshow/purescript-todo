@@ -16,6 +16,7 @@
     "purescript-node-fs": "^4.0.0",
     "purescript-aff": "^3.0.0",
     "purescript-affjax": "^4.0.0",
-    "purescript-hyper": "^0.7.3"
+    "purescript-hyper": "^0.7.3",
+    "todomvc-app-css": "^2.1.0"
   }
 }

@@ -1,6 +1,6 @@
 module App.Events where
 
-import Prelude
+import Prelude hiding (div)
 import App.Routes (Route)
 import App.State (State(..), Todos)
 import Control.Monad.Aff (attempt)
@@ -13,7 +13,7 @@ import Pux (EffModel, noEffects, onlyEffects)
 
 data Event 
     = PageView Route
-    | Increment
+    | GetTodos
     | Decrement
     | ReceiveTodos (Either String Todos)
 
@@ -22,7 +22,7 @@ type AppEffects fx = (ajax :: AJAX, console :: CONSOLE | fx)
 foldp :: forall fx. Event -> State -> EffModel State Event (AppEffects fx)
 foldp (PageView route) (State st) = noEffects $ State st { route = route, loaded = true }
 
-foldp Increment (State st) = onlyEffects 
+foldp GetTodos (State st) = onlyEffects 
     (State st { count = st.count + 1 }) 
     [ do
         res <- attempt $ get "http://jsonplaceholder.typicode.com/users/1/todos"
@@ -47,3 +47,4 @@ foldp (ReceiveTodos res) (State st) = noEffects $
     case res of
         Right todos -> State st { todos = todos, error = "" }
         Left err -> State st { error = "Error fetching " <> (show err) }
+
