@@ -1,12 +1,13 @@
 module App.Events where
 
 import App.Routes (Route)
-import App.State (State(..), Todos, Todo(..))
+import App.State (State(..), Todos, Todo(..), TodoId)
 import Control.Monad.Aff (attempt)
 import Control.Monad.Aff.Console (CONSOLE, log)
 import Control.Monad.Except (runExcept)
 import DOM.Event.KeyboardEvent (eventToKeyboardEvent, key)
 import Data.Argonaut (decodeJson)
+import Data.Array (filter)
 import Data.Either (Either(..), either)
 import Data.Maybe (Maybe(..))
 import Network.HTTP.Affjax (AJAX, get)
@@ -19,8 +20,13 @@ data Event
     | GetTodos
     | Decrement
     | ReceiveTodos (Either String Todos)
-    | ToggleEdit Int DOMEvent
-    | TodoInput Int DOMEvent
+    | ToggleEdit TodoId DOMEvent
+    | TodoInput TodoId DOMEvent
+    | ToggleCompleted TodoId DOMEvent
+    | MarkAll 
+    | DeleteTodo TodoId DOMEvent
+
+
 
 type AppEffects fx = (ajax :: AJAX, console :: CONSOLE | fx)
 
@@ -57,8 +63,8 @@ foldp (ToggleEdit id ev) (State st) = noEffects $
     State st 
         { todos = map (\(Todo x) -> 
             if x.id == id 
-            then (Todo x { editing = not x.editing, new = x.text }) 
-            else (Todo x { editing = false })) 
+                then (Todo x { editing = not x.editing, new = x.text }) 
+                else (Todo x { editing = false })) 
           st.todos 
         }
 
@@ -76,7 +82,7 @@ foldp (TodoInput id ev) (State st) = noEffects $
             { todos = map (\(Todo x) -> 
                 if x.id == id 
                     then (Todo x { text = x.text, editing = false })
-                    else (Todo x))
+                    else Todo x)
                 st.todos
             }
         _ -> State st
@@ -87,6 +93,24 @@ foldp (TodoInput id ev) (State st) = noEffects $
                     st.todos 
             }
 
+foldp (ToggleCompleted id ev) (State st) = noEffects $
+    State st
+        { todos = map (\(Todo x) -> 
+            if x.id == id 
+                then (Todo x { completed = not x.completed })
+                else Todo x)
+            st.todos
+        }
+
+foldp MarkAll (State st) = noEffects $
+    State st
+        { todos = map (\(Todo x) ->
+            (Todo x { completed = not x.completed }))
+            st.todos
+        }
+
+foldp (DeleteTodo id ev) (State st) = noEffects $ State st
+    { todos = filter (\(Todo t) -> t.id /= id) st.todos }
 
 eventToKey :: DOMEvent -> String
 eventToKey ev = either (const "") key $ runExcept $ eventToKeyboardEvent ev

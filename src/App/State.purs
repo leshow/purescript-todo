@@ -40,6 +40,7 @@ data Todo = Todo
   }
   
 type Todos = Array Todo
+type TodoId = Int
 
 instance decodeJsonTodo :: DecodeJson Todo where
   decodeJson json = do
