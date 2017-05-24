@@ -34,7 +34,9 @@ data Todo = Todo
   { id :: Int
   , title :: String
   , completed :: Boolean 
+  , editing :: Boolean
   , text :: String
+  , new :: String
   }
   
 type Todos = Array Todo
@@ -45,7 +47,7 @@ instance decodeJsonTodo :: DecodeJson Todo where
         id <- obj .? "id"
         title <- obj .? "title"
         completed <- obj .? "completed"
-        pure $ Todo { id, title, completed, text: "" }
+        pure $ Todo { id, title, completed, text: title, new: title, editing: false }
 
 instance encodeJsonTodo :: EncodeJson Todo where
   encodeJson (Todo todo) = 
@@ -53,6 +55,7 @@ instance encodeJsonTodo :: EncodeJson Todo where
     ~> "title" := todo.title
     ~> "completed" := todo.completed
     ~> "text" := todo.text
+    ~> "editing" := todo.editing
     ~> jsonEmptyObject
     
 
