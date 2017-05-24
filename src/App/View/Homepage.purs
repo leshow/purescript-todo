@@ -21,7 +21,7 @@ view (State s) =
   section ! className "todoapp" $ do
     header ! className "header" $ do
       h1 $ text "todos" 
-      input ! className "new-todo" ! focused ! placeholder "Pux todolist, enter stuff?"
+      input ! className "new-todo" ! placeholder "Pux todolist, enter stuff?"
       button ! className "edit" #! onClick (const GetTodos) $ text "Fetch todos"
     section ! className "main" $ do
       input ! className "toggle-all" ! type' "checkbox"
@@ -34,11 +34,9 @@ todoItem (Todo todo) =
         li 
           ! className (if todo.completed then "completed" else (if todo.editing then "editing" else ""))
           ! key (show todo.id) $ do
-          div ! className "view" $ do
-            input ! className "toggle" ! type' "checkbox"
-            label #! onDoubleClick (ToggleEdit todo.id) $ text todo.text
-            button ! className "destroy" $ mempty
-          input ! className "edit" ! value "Some Value" 
+            if todo.editing 
+              then itemEditing (Todo todo)
+              else itemView (Todo todo)
 
 itemEditing :: Todo -> HTML Event
 itemEditing (Todo todo) = 
@@ -47,19 +45,15 @@ itemEditing (Todo todo) =
     ! type' "text"
     ! className "edit"
     ! focused
-    ! value todo.text
+    ! value todo.new
 
---   div $ do
---     h1 $ text "Todos"
---     a ! className "github" ! href "#" #! onClick (const GetTodos) $ text "Increment"
---     span $ text (show s.count)
---     a ! className "github" ! href "#" #! onClick (const Decrement) $ text "Decrement"
---     section $ do
---       if ((length s.todos) == 0)
---         then span $ text "No todos found"
---         else
---           ul $ do
---             for_ s.todos item
+itemView :: Todo -> HTML Event
+itemView (Todo todo) = 
+      div ! className "view" $ do
+        input ! className "toggle" ! type' "checkbox"
+        label #! onDoubleClick (ToggleEdit todo.id) $ text todo.text
+        button ! className "destroy" $ mempty
+      -- input ! className "edit" ! value todo.text
 
   
   

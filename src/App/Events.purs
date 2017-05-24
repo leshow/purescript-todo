@@ -66,22 +66,22 @@ foldp (TodoInput id ev) (State st) = noEffects $
     case eventToKey ev of
         "Enter" -> State st 
             { todos = map (\(Todo x) -> 
-                    if x.id == id
-                    then (Todo x { text = x.new, editing = x.editing }) 
+                if x.id == id
+                    then (Todo x { text = x.new, editing = false }) 
                     else Todo x) 
                 st.todos
                 
             }
         "Escape" -> State st
             { todos = map (\(Todo x) -> 
-                    if x.id == id 
-                    then (Todo x { text = x.text, editing = not x.editing })
+                if x.id == id 
+                    then (Todo x { text = x.text, editing = false })
                     else (Todo x))
                 st.todos
             }
         _ -> State st
             { todos = map (\(Todo x) -> 
-                    if x.id == id
+                if x.id == id
                     then (Todo x { new = targetValue ev })
                     else Todo x)
                     st.todos 
