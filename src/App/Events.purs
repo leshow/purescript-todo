@@ -1,14 +1,22 @@
 module App.Events where
 
-import App.Routes (Route)
+import App.Routes (Route, match)
 import App.State (State(..), Todos, Todo(..), TodoId)
 import Control.Monad.Aff (attempt)
 import Control.Monad.Aff.Console (CONSOLE, log)
+import Control.Monad.Eff.Class (liftEff)
 import Control.Monad.Except (runExcept)
+import DOM (DOM)
+import DOM.Event.Event (preventDefault)
 import DOM.Event.KeyboardEvent (eventToKeyboardEvent, key)
+import DOM.HTML (window)
+import DOM.HTML.History (DocumentTitle(..), URL(..), pushState)
+import DOM.HTML.Types (HISTORY)
+import DOM.HTML.Window (history)
 import Data.Argonaut (decodeJson)
 import Data.Array (filter)
 import Data.Either (Either(..), either)
+import Data.Foreign (toForeign)
 import Data.Maybe (Maybe(..))
 import Network.HTTP.Affjax (AJAX, get)
 import Pux (EffModel, noEffects, onlyEffects)
@@ -17,6 +25,7 @@ import Prelude hiding (div)
 
 data Event 
     = PageView Route
+    | ChangeRoute String DOMEvent
     | GetTodos
     | Decrement
     | ReceiveTodos (Either String Todos)
@@ -28,14 +37,22 @@ data Event
 
 
 
-type AppEffects fx = (ajax :: AJAX, console :: CONSOLE | fx)
+type AppEffects fx = (ajax :: AJAX, history :: HISTORY, dom :: DOM, console :: CONSOLE | fx)
 
 foldp :: forall fx. Event -> State -> EffModel State Event (AppEffects fx)
 foldp (PageView route) (State st) = noEffects $ State st { route = route, loaded = true }
 
+foldp (ChangeRoute url ev) st = 
+    onlyEffects st [ do
+        liftEff $ do
+            preventDefault ev
+            h <- history =<< window
+            pushState (toForeign {}) (DocumentTitle "") (URL url) h
+        pure $ Just $ PageView (match url)
+    ] 
+
 foldp GetTodos (State st) = onlyEffects 
-    (State st { count = st.count + 1 }) 
-    [ do
+    (State st { count = st.count + 1 }) [ do
         res <- attempt $ get "http://jsonplaceholder.typicode.com/users/1/todos"
         let decode r = decodeJson r.response :: Either String Todos
         let todos = either (Left <<< show) decode res
