@@ -20,6 +20,7 @@ newtype State = State
   , loaded :: Boolean
   , count :: Int
   , todos :: Todos
+  , input :: String
   , fetching :: Boolean
   , error :: String
   }
@@ -80,6 +81,7 @@ init url = State
   , loaded: false
   , count: 0
   , todos: []
+  , input: ""
   , fetching: false
   , error: ""
   }

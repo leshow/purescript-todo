@@ -2,6 +2,7 @@ module App.Events where
 
 import App.Routes (Route, match)
 import App.State (State(..), Todos, Todo(..), TodoId)
+import Control.Applicative ((<*>))
 import Control.Monad.Aff (attempt)
 import Control.Monad.Aff.Console (CONSOLE, log)
 import Control.Monad.Eff.Class (liftEff)
@@ -14,10 +15,11 @@ import DOM.HTML.History (DocumentTitle(..), URL(..), pushState)
 import DOM.HTML.Types (HISTORY)
 import DOM.HTML.Window (history)
 import Data.Argonaut (decodeJson)
-import Data.Array (filter)
+import Data.Array (filter, last, snoc)
 import Data.Either (Either(..), either)
 import Data.Foreign (toForeign)
-import Data.Maybe (Maybe(..))
+import Data.Function (($))
+import Data.Maybe (Maybe(..), maybe)
 import Network.HTTP.Affjax (AJAX, get)
 import Pux (EffModel, noEffects, onlyEffects)
 import Pux.DOM.Events (DOMEvent, targetValue)
@@ -34,6 +36,7 @@ data Event
     | ToggleCompleted TodoId DOMEvent
     | MarkAll 
     | DeleteTodo TodoId DOMEvent
+    | AddTodo DOMEvent
 
 
 
@@ -129,6 +132,23 @@ foldp MarkAll (State st) = noEffects $
 foldp (DeleteTodo id ev) (State st) = noEffects $ State st
     { todos = filter (\(Todo t) -> t.id /= id) st.todos }
 
+foldp (AddTodo ev) (State st) = noEffects $ 
+    case eventToKey ev of
+        "Enter" -> State st
+            { input = ""
+            , todos = snoc st.todos $ newTodo (last st.todos) st.input
+            }
+        _ -> State st { input = targetValue ev }
+
 eventToKey :: DOMEvent -> String
 eventToKey ev = either (const "") key $ runExcept $ eventToKeyboardEvent ev
 
+newTodo :: Maybe Todo -> String -> Todo
+newTodo todo textField = Todo 
+    { id: maybe 1 (\(Todo t) -> t.id + 1) todo
+    , text: textField
+    , title: textField
+    , completed: false
+    , editing: false
+    , new: ""
+    }

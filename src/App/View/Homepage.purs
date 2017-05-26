@@ -6,7 +6,7 @@ import App.State (State(..), Todo(..))
 import Data.Array (length)
 import Data.Foldable (for_)
 import Data.Monoid (mempty)
-import Pux.DOM.Events (onChange, onClick, onDoubleClick, onKeyUp)
+import Pux.DOM.Events (onChange, onClick, onDoubleClick, onKeyDown, onKeyUp)
 import Pux.DOM.HTML (HTML)
 import Pux.DOM.HTML.Attributes (focused, key)
 import Text.Smolder.HTML (a, button, div, footer, h1, header, input, label, li, section, span, strong, ul)
@@ -20,7 +20,7 @@ view (State s) =
   section ! className "todoapp" $ do
     header ! className "header" $ do
       h1 $ text "todos" 
-      input ! className "new-todo" ! placeholder "Pux todolist, enter stuff?"
+      input ! className "new-todo" ! placeholder "Pux todolist, enter stuff?" #! onKeyDown (\e -> AddTodo e) ! value s.input
       -- button ! className "edit" #! onClick (const GetTodos) $ text "Fetch todos"
     section ! className "main" $ do
       input ! className "toggle-all" ! type' "checkbox" #! onClick (const MarkAll)
