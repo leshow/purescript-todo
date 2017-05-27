@@ -32,8 +32,8 @@ view (State s) =
         h1 $ text "todos" 
         input ! className "new-todo" ! placeholder "Pux todolist, enter stuff?" #! onKeyDown (\e -> AddTodo e) ! value s.input
       section ! className "main" $ do
-        input ! className "toggle-all" ! type' "checkbox" #! onChange (const MarkAll)
-        label ! for "toggle-all" $ text "Mark all as complete"
+        input ! className "toggle-all" ! type' "checkbox"
+        label ! for "toggle-all" #! onClick (const ToggleAll) $ text "Mark all as complete"
         ul ! className "todo-list" $ do
           for_ todoList todoItem
       footer ! className "footer" $ do

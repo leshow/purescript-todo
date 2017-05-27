@@ -2,7 +2,6 @@ module App.Events where
 
 import App.Routes (Route, match)
 import App.State (State(..), Todos, Todo(..), TodoId)
-import Control.Applicative ((<*>))
 import Control.Monad.Aff (attempt)
 import Control.Monad.Aff.Console (CONSOLE, log)
 import Control.Monad.Eff.Class (liftEff)
@@ -18,7 +17,6 @@ import Data.Argonaut (decodeJson)
 import Data.Array (filter, last, snoc)
 import Data.Either (Either(..), either)
 import Data.Foreign (toForeign)
-import Data.Function (($))
 import Data.Maybe (Maybe(..), maybe)
 import Network.HTTP.Affjax (AJAX, get)
 import Pux (EffModel, noEffects, onlyEffects)
@@ -34,7 +32,7 @@ data Event
     | ToggleEdit TodoId DOMEvent
     | TodoInput TodoId DOMEvent
     | ToggleCompleted TodoId DOMEvent
-    | MarkAll 
+    | ToggleAll 
     | DeleteTodo TodoId DOMEvent
     | AddTodo DOMEvent
 
@@ -122,7 +120,7 @@ foldp (ToggleCompleted id ev) (State st) = noEffects $
             st.todos
         }
 
-foldp MarkAll (State st) = noEffects $
+foldp ToggleAll (State st) = noEffects $
     State st
         { todos = map (\(Todo x) ->
             (Todo x { completed = not x.completed }))

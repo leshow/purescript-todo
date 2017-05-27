@@ -1,22 +1,21 @@
 module App.Routes where
 
 import Control.Alt ((<|>))
-import Control.Apply ((*>), (<*))
+import Control.Apply ((<*))
 import Data.Eq (class Eq)
 import Data.Foreign.Class (class Decode, class Encode)
 import Data.Foreign.Generic (defaultOptions, genericDecode, genericEncode)
 import Data.Function (($))
-import Data.Functor ((<$), (<$>))
+import Data.Functor ((<$))
 import Data.Generic.Rep (class Generic)
 import Data.Generic.Rep.Eq (genericEq)
 import Data.Generic.Rep.Show (genericShow)
 import Data.Maybe (fromMaybe)
-import Data.Semigroup ((<>))
-import Data.Show (class Show, show)
-import Pux.Router (end, int, lit, param, router)
+import Data.Show (class Show)
+import Pux.Router (end, lit, router)
 
-data Route = 
-  All 
+data Route 
+  = All 
   | Active
   | Completed
   | NotFound String
