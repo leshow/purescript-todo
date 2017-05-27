@@ -1,8 +1,6 @@
-# pux-starter-app
+# purescript-todo
 
-The [starter app](http://github.com/alexmingoia/pux-starter-app) is a pux
-project configured with isomorphic rendering and routing, hot-reloading, and a
-production server.
+**NOTE** I based this project off the pux-starter-app, used that as a starting point to learn Purescript and Pux. I decided to reimplement todomvc in order to learn.
 
 ## Installation
 
