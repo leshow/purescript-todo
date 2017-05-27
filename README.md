@@ -1,14 +1,14 @@
 # purescript-todo
 
-**NOTE** I based this project off the pux-starter-app, used that as a starting point to learn Purescript and Pux. I decided to reimplement todomvc in order to learn.
+**NOTE** I based this off the pux-starter-app, used that as a starting point to learn Purescript and Pux. I decided to reimplement todomvc in order to learn.
 
 ## Installation
 
 Clone the repository and run `npm install` to get started:
 
 ```sh
-git clone git://github.com/alexmingoia/pux-starter-app.git my-awesome-pux-app
-cd my-awesome-pux-app
+git clone git://github.com/leshow/purescript-todo
+cd purescript-todo
 npm install
 npm start
 ```
