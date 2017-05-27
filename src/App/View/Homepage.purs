@@ -3,13 +3,13 @@ module App.View.Homepage where
 import App.Events (Event(..))
 import App.Routes (Route(..))
 import App.State (State(..), Todo(..))
-import Data.Array (length)
+import Data.Array (filter, length)
 import Data.Foldable (for_)
 import Data.Monoid (mempty)
 import Pux.DOM.Events (onChange, onClick, onDoubleClick, onKeyDown, onKeyUp)
 import Pux.DOM.HTML (HTML)
 import Pux.DOM.HTML.Attributes (focused, key)
-import Text.Smolder.HTML (a, button, div, footer, h1, header, input, label, li, section, span, strong, ul)
+import Text.Smolder.HTML (a, button, div, footer, h1, header, input, label, li, p, section, span, strong, ul)
 import Text.Smolder.HTML.Attributes (checked, className, for, href, placeholder, type', value)
 import Text.Smolder.Markup (text, (!), (!?), (#!))
 import Prelude hiding (div)
@@ -17,23 +17,35 @@ import Prelude hiding (div)
 
 view :: State -> HTML Event
 view (State s) =
-  section ! className "todoapp" $ do
-    header ! className "header" $ do
-      h1 $ text "todos" 
-      input ! className "new-todo" ! placeholder "Pux todolist, enter stuff?" #! onKeyDown (\e -> AddTodo e) ! value s.input
-      -- button ! className "edit" #! onClick (const GetTodos) $ text "Fetch todos"
-    section ! className "main" $ do
-      input ! className "toggle-all" ! type' "checkbox" #! onClick (const MarkAll)
-      label ! for "toggle-all" $ text "Mark all as complete"
-      ul ! className "todo-list" $ do
-        for_ s.todos todoItem
-    footer ! className "footer" $ do
-      span ! className "todo-count" $ do
-        strong $ text (show (length s.todos)) <> text " item left"
-      ul ! className "filters" $ do
-        filterLink (s.route == All) "/" "All"
-        filterLink (s.route == Active) "/active" "Active"
-        filterLink (s.route == Completed) "/completed" "Completed"
+  let
+    activeTodos = filter (\(Todo t) -> not t.completed) s.todos
+    showlen = show <<< length
+    todoList = case s.route of
+                  Completed -> filter (\(Todo t) -> t.completed) s.todos
+                  Active -> activeTodos
+                  All -> s.todos
+                  _ -> s.todos
+  in 
+  div $ do
+    section ! className "todoapp" $ do
+      header ! className "header" $ do
+        h1 $ text "todos" 
+        input ! className "new-todo" ! placeholder "Pux todolist, enter stuff?" #! onKeyDown (\e -> AddTodo e) ! value s.input
+      section ! className "main" $ do
+        input ! className "toggle-all" ! type' "checkbox" #! onChange (const MarkAll)
+        label ! for "toggle-all" $ text "Mark all as complete"
+        ul ! className "todo-list" $ do
+          for_ todoList todoItem
+      footer ! className "footer" $ do
+        span ! className "todo-count" $ do
+          strong $ text (showlen activeTodos) <> text " item(s) left"
+        ul ! className "filters" $ do
+          filterLink (s.route == All) "/" "All"
+          filterLink (s.route == Active) "/active" "Active"
+          filterLink (s.route == Completed) "/completed" "Completed"
+    footer ! className "info" $ do
+      p $ text "Double click to edit, click below to request some todos"
+      a #! onClick (const GetTodos) $ text "FetchTodos"
   
 todoItem :: Todo -> HTML Event
 todoItem (Todo todo) = 
